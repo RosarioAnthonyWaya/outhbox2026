@@ -1,0 +1,26 @@
+<meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}</title>
+    <meta content="{{ page.description | default: site.description }}" name="description">
+    <meta content="{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}" property="og:title">
+    <meta content="{{ page.description | default: site.description }}" property="og:description">
+    <meta content="website" property="og:type">
+    <meta content="{{ site.url }}{{ page.url }}" property="og:url">
+    <meta content="{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}" name="twitter:title">
+    <meta content="{{ page.description | default: site.description }}" name="twitter:description">
+    <meta name="twitter:card" content="summary_large_image">
+    <link href="https://cdn.prod.website-files.com/68b0f2d535d9b26e05ca3478/css/workhorse-saas-software-template.webflow.shared.93d324ac1.css" rel="stylesheet" type="text/css">
+    <style>
+    
+        body {
+            transition: opacity ease-in 0.2s;
+        }
+
+        body[unresolved] {
+            opacity: 0;
+            display: block;
+            overflow: hidden;
+            position: relative;
+        }
+    
+    </style>
