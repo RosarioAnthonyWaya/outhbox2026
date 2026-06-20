@@ -1,0 +1,137 @@
+<meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+
+    <!-- Title & Core Meta -->
+    <title>{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    <meta name="author" content="Outhbox Limited">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+    <meta property="og:title" content="{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}">
+    <meta property="og:description" content="{{ page.description | default: site.description }}">
+    <meta property="og:image" content="{{ site.url }}/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Outhbox — Technology Built to Work">
+    <meta property="og:site_name" content="Outhbox">
+    <meta property="og:locale" content="en_GB">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ page.title }}{% if page.title != site.title %} | {{ site.title }}{% endif %}">
+    <meta name="twitter:description" content="{{ page.description | default: site.description }}">
+    <meta name="twitter:image" content="{{ site.url }}/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="Outhbox — Technology Built to Work">
+
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+    <meta name="theme-color" content="#0A0A0A">
+    <meta name="msapplication-TileColor" content="#0A0A0A">
+    <meta name="msapplication-TileImage" content="/assets/images/apple-touch-icon.png">
+
+    <!-- Geo targeting -->
+    <meta name="geo.region" content="{{ page.geo_region | default: 'GB' }}">
+    <meta name="geo.placename" content="{{ page.geo_placename | default: 'Sheffield, United Kingdom' }}">
+
+    <!-- JSON-LD Structured Data -->
+    {% if page.schema %}
+    {{ page.schema }}
+    {% else %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://outhbox.com/#organization",
+          "name": "Outhbox Limited",
+          "alternateName": "Outhbox",
+          "url": "https://outhbox.com",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://outhbox.com/assets/images/logo-white-on-dark.png",
+            "width": 1456,
+            "height": 840
+          },
+          "image": "https://outhbox.com/assets/images/og-image.png",
+          "description": "UK-registered technology company delivering web development, automation, cybersecurity, and digital infrastructure for businesses in the UK and Nigeria.",
+          "foundingDate": "2024",
+          "legalName": "Outhbox Limited",
+          "identifier": "15622468",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Unit F, Winston Business Park, Churchill Way",
+            "addressLocality": "Sheffield",
+            "addressRegion": "South Yorkshire",
+            "postalCode": "S35 2PS",
+            "addressCountry": "GB"
+          },
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "telephone": "+44-7418-350211",
+              "contactType": "customer service",
+              "email": "hello@outhbox.com",
+              "availableLanguage": ["English"]
+            }
+          ],
+          "sameAs": [
+            "https://uk.linkedin.com/company/outhbox",
+            "https://www.instagram.com/outhbox"
+          ],
+          "areaServed": [
+            {
+              "@type": "Country",
+              "name": "United Kingdom"
+            },
+            {
+              "@type": "Country",
+              "name": "Nigeria"
+            }
+          ],
+          "knowsAbout": [
+            "Web Development",
+            "E-commerce Development",
+            "Business Automation",
+            "Cybersecurity",
+            "Custom Software Development",
+            "Digital Infrastructure"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://outhbox.com/#website",
+          "url": "https://outhbox.com",
+          "name": "Outhbox",
+          "description": "UK-registered technology company delivering web development, automation, cybersecurity, and digital infrastructure.",
+          "publisher": {
+            "@id": "https://outhbox.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://outhbox.com/search?query={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+    {% endif %}
+
+    <!-- Webflow CSS (hosted on Webflow CDN) -->
+    <link href="https://cdn.prod.website-files.com/68b0f2d535d9b26e05ca3478/css/workhorse-saas-software-template.webflow.shared.93d324ac1.css" rel="stylesheet" type="text/css">
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+        }
+        .start-hidden {
+            opacity: 0;
+        }
+    </style>

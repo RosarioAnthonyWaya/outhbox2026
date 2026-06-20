@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────
+# Outhbox Limited — Jekyll Configuration
+# GitHub Pages deployment
+# ─────────────────────────────────────────────
+
+title: "Outhbox"
+description: "UK-registered technology company delivering web development, automation, cybersecurity, and digital infrastructure for businesses in the UK and Nigeria."
+url: "https://outhbox.com"
+baseurl: ""
+
+# Company details
+company:
+  name: "Outhbox Limited"
+  number: "15622468"
+  email: "hello@outhbox.com"
+  phone: "+44 7418 350211"
+  address: "Unit F, Winston Business Park, Churchill Way, Sheffield, S35 2PS"
+  instagram: "https://instagram.com"
+  linkedin: "https://linkedin.com"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# GitHub Pages safe plugins only
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - .gitignore
+  - .DS_Store
+  - node_modules
+  - vendor
+
+# Defaults — every page gets layout: default unless overridden
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
