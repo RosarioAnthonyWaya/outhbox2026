@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outhbox Reminder Engine — Full Prototype</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper:#F3F2ED; --paper-2:#EAE8E0;
+    --ink:#1B2340; --ink-soft:#5B5F73; --ink-faint:#9B9EA8;
+    --rule:#D9D6CC;
+    --emerald:#1F6F54; --emerald-bg:#E4EFE9;
+    --amber:#B8842E; --amber-bg:#F6EDDD;
+    --rust:#A23E2E; --rust-bg:#F5E4E0;
+    --violet:#5B4B8A; --violet-bg:#ECE8F5;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--paper-2); font-family:'Inter', sans-serif; color:var(--ink); }
+  a{ color:inherit; }
+
+  /* TOP BAR */
+  .topbar{
+    position:sticky; top:0; z-index:100; background:var(--ink); color:#fff;
+    display:flex; align-items:center; justify-content:space-between; padding:12px 20px;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:14px; }
+  .topbar .tb-logo{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; }
+  .tb-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.03em; text-transform:uppercase;
+    background:none; border:1px solid #444B66; color:#C9CBDA; padding:7px 12px; border-radius:3px; cursor:pointer;
+  }
+  .tb-btn:hover{ border-color:#fff; color:#fff; }
+  .tb-crumb{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8A8FA8; }
+
+  /* SITEMAP PANEL */
+  .sitemap-overlay{
+    display:none; position:fixed; inset:0; background:rgba(27,35,64,0.5); z-index:200;
+  }
+  .sitemap-overlay.open{ display:block; }
+  .sitemap-panel{
+    position:fixed; top:0; right:0; bottom:0; width:340px; max-width:88vw;
+    background:var(--paper); box-shadow:-12px 0 40px rgba(0,0,0,0.25); z-index:201;
+    padding:24px 22px; overflow-y:auto;
+  }
+  .sitemap-panel h3{
+    font-family:'Fraunces', serif; font-size:17px; font-weight:600; margin-bottom:4px;
+  }
+  .sitemap-close{
+    position:absolute; top:20px; right:20px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--ink-soft);
+  }
+  .sitemap-group{ margin-top:22px; }
+  .sitemap-group-title{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.05em; color:var(--ink-faint); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--rule);
+  }
+  .sitemap-link{
+    display:block; padding:8px 4px; font-size:13px; cursor:pointer; border-radius:3px;
+  }
+  .sitemap-link:hover{ background:var(--paper-2); }
+
+  /* SCREEN / PAGE SHELL */
+  .screen{ display:none; min-height:calc(100vh - 49px); background:var(--paper); padding:0 0 80px; }
+  .screen.active{ display:block; }
+  .page{ max-width:780px; margin:0 auto; padding:0 28px; }
+
+  .brand-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:28px 0 20px; border-bottom:1px solid var(--rule);
+  }
+  .brand{ font-family:'Fraunces', serif; font-weight:600; font-size:19px; display:flex; align-items:center; gap:9px; }
+  .brand .mark{ width:16px; height:20px; border:1.5px solid var(--ink); border-radius:2px; flex-shrink:0; }
+  .step{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.05em; }
+  .backlink{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); cursor:pointer; }
+
+  h1.display{ font-family:'Fraunces', serif; font-weight:600; font-size:30px; line-height:1.18; letter-spacing:-0.01em; }
+  .sub{ color:var(--ink-soft); font-size:14px; margin-top:8px; line-height:1.5; max-width:540px; }
+  .header-block{ padding:34px 0 28px; }
+
+  .btn-primary{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:13.5px;
+    background:var(--ink); color:var(--paper); border:none; padding:13px 26px;
+    border-radius:2px; cursor:pointer;
+  }
+  .btn-primary:hover{ opacity:0.9; }
+  .btn-outline{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:12.5px;
+    background:transparent; color:var(--ink); border:1.5px solid var(--ink);
+    padding:11px 20px; border-radius:2px; cursor:pointer;
+  }
+  .footer-row{ margin-top:32px; padding-top:20px; border-top:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center; gap:10px; }
+
+  /* HOME / SITEMAP LANDING */
+  .home-hero{ text-align:center; padding:64px 20px 40px; }
+  .home-hero .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--emerald);
+    text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;
+  }
+  .home-hero h1{ font-family:'Fraunces', serif; font-weight:600; font-size:38px; letter-spacing:-0.01em; }
+  .home-hero p{ color:var(--ink-soft); font-size:15px; max-width:520px; margin:14px auto 0; line-height:1.6; }
+  .home-grid{
+    max-width:900px; margin:0 auto; padding:0 24px; display:grid;
+    grid-template-columns:1fr 1fr; gap:20px; padding-bottom:80px;
+  }
+  @media (max-width:680px){ .home-grid{ grid-template-columns:1fr; } }
+  .home-card{
+    border:1.5px solid var(--rule); background:#fff; padding:26px; cursor:pointer;
+    display:flex; flex-direction:column; gap:10px; transition:border-color .15s ease;
+  }
+  .home-card:hover{ border-color:var(--ink); }
+  .home-card .hc-num{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint);
+  }
+  .home-card .hc-title{ font-family:'Fraunces', serif; font-weight:600; font-size:20px; }
+  .home-card .hc-desc{ font-size:13px; color:var(--ink-soft); line-height:1.55; }
+  .home-card .hc-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .hc-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase;
+    background:var(--paper-2); border:1px solid var(--rule); padding:3px 7px; border-radius:3px; color:var(--ink-soft);
+  }
+  .hc-enter{ margin-top:auto; padding-top:10px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink); }
+
+  /* SIGN IN */
+  #signin .page{ max-width:400px; min-height:calc(100vh - 49px); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding-bottom:60px; }
+  .signin-brand{ font-family:'Fraunces', serif; font-weight:600; font-size:24px; margin-bottom:6px; }
+  .signin-tag{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:48px; }
+  .signin-form{ width:100%; }
+  .signin-form label{ display:block; text-align:left; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:8px; }
+  .signin-form input{ width:100%; background:transparent; border:none; border-bottom:1.5px solid var(--ink); color:var(--ink); padding:10px 2px; font-size:15px; outline:none; margin-bottom:28px; }
+  .signin-form .btn-primary{ width:100%; }
+  .signin-note{ margin-top:22px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); line-height:1.6; }
+
+  /* TRIGGER PICKER */
+  .trigger-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  @media (max-width:720px){ .trigger-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:480px){ .trigger-grid{ grid-template-columns:1fr; } }
+  .trigger-card{ border:1.5px solid var(--rule); background:#fff; padding:22px 20px; cursor:pointer; display:flex; flex-direction:column; gap:9px; }
+  .trigger-card:hover{ border-color:var(--ink); }
+  .trigger-card .glyph{ font-family:'Fraunces', serif; font-size:24px; color:var(--ink-faint); }
+  .trigger-card .t-title{ font-family:'Fraunces', serif; font-weight:600; font-size:15.5px; }
+  .trigger-card .t-desc{ font-size:12px; color:var(--ink-soft); line-height:1.5; }
+  .trigger-card .t-tag{ margin-top:auto; padding-top:8px; font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.04em; }
+  .trigger-card .t-tag.ready{ color:var(--emerald); }
+  .trigger-card .t-tag.soon{ color:var(--ink-faint); }
+  .trigger-card.dimmed{ opacity:0.5; cursor:not-allowed; }
+
+  /* EVENT MENU */
+  .event-list{ border-top:1px solid var(--rule); }
+  .event-row{ display:flex; justify-content:space-between; align-items:center; padding:20px 4px; border-bottom:1px solid var(--rule); cursor:pointer; }
+  .event-row:hover{ background:var(--paper-2); }
+  .event-left{ display:flex; align-items:center; gap:16px; }
+  .event-glyph{ width:38px; height:38px; border:1.5px solid var(--ink); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Fraunces', serif; font-size:16px; flex-shrink:0; }
+  .event-name{ font-size:14.5px; font-weight:500; }
+  .event-desc{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .event-status{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; }
+  .event-status.ready{ color:var(--emerald); }
+  .event-status.soon{ color:var(--ink-faint); }
+  .event-row.disabled{ opacity:0.45; cursor:not-allowed; }
+  .event-row.disabled:hover{ background:none; }
+  .event-row.new::after{ content:"NEW"; font-family:'IBM Plex Mono', monospace; font-size:8.5px; background:var(--violet); color:#fff; padding:2px 5px; border-radius:2px; margin-left:8px; }
+
+  /* IMPORT / DROPZONE */
+  .dropzone{ border:2px dashed var(--ink-faint); border-radius:4px; padding:50px 24px; text-align:center; background:repeating-linear-gradient(to bottom, transparent, transparent 27px, var(--rule) 28px); cursor:pointer; }
+  .dropzone .icon{ font-family:'Fraunces', serif; font-size:36px; color:var(--ink-faint); margin-bottom:12px; }
+  .dropzone .title{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; margin-bottom:6px; }
+  .dropzone .desc{ font-size:13px; color:var(--ink-soft); margin-bottom:20px; }
+  .import-footnote{ margin-top:18px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); }
+  .mapping-hint{ margin-top:28px; padding:16px 18px; border:1px solid var(--rule); border-left:3px solid var(--emerald); background:var(--emerald-bg); font-size:13px; }
+  .mapping-hint b{ font-family:'IBM Plex Mono', monospace; font-size:12px; }
+
+  /* SETUP BOXES */
+  .setup-box{ border:1px solid var(--rule); background:#fff; padding:28px; max-width:540px; }
+  .setup-box label{ display:block; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:8px; }
+  .setup-box input, .setup-box select{ width:100%; border:1px solid var(--rule); background:var(--paper); padding:11px 12px; font-family:'IBM Plex Mono', monospace; font-size:13.5px; color:var(--ink); margin-bottom:18px; }
+  .setup-grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .setup-note{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin-bottom:20px; padding:14px; background:var(--paper-2); border-left:3px solid var(--ink-faint); }
+  .setup-note.violet{ border-left-color:var(--violet); background:var(--violet-bg); }
+  .chip-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .chip{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:8px 14px; border:1.5px solid var(--rule); cursor:pointer; color:var(--ink-soft); }
+  .chip.active{ border-color:var(--ink); color:var(--ink); background:var(--paper-2); }
+  .mini-toggle-row{ display:flex; gap:14px; font-size:11.5px; color:var(--ink-soft); }
+  .mini-toggle-row label{ display:flex; align-items:center; gap:5px; }
+
+  /* DELAY VISUAL */
+  .delay-visual{ display:flex; align-items:center; gap:0; margin:24px 0; font-family:'IBM Plex Mono', monospace; font-size:12px; }
+  .delay-node{ border:1.5px solid var(--ink); padding:10px 14px; background:#fff; white-space:nowrap; }
+  .delay-node.event{ border-color:var(--violet); color:var(--violet); }
+  .delay-node.action{ border-color:var(--emerald); color:var(--emerald); }
+  .delay-arrow-wrap{ position:relative; flex:1; min-width:60px; }
+  .delay-arrow{ height:1px; background:var(--rule); position:relative; }
+  .delay-arrow::after{ content:"→"; position:absolute; right:-2px; top:-9px; color:var(--ink-faint); }
+  .delay-wait{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); text-align:center; position:absolute; top:-22px; left:50%; transform:translateX(-50%); white-space:nowrap; }
+
+  /* LIVE / INCOMING */
+  .live-status{ margin-top:30px; border:1px dashed var(--rule); padding:22px; text-align:center; }
+  .live-dot{ width:9px; height:9px; border-radius:50%; background:var(--emerald); display:inline-block; margin-right:7px; animation:blink 1.6s ease infinite; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .live-status .lstext{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; }
+  .live-status .lsub{ font-size:12.5px; color:var(--ink-faint); margin-top:8px; }
+  .incoming-row{ margin-top:16px; padding:13px 16px; background:var(--emerald-bg); border-left:3px solid var(--emerald); display:flex; justify-content:space-between; align-items:center; font-size:13px; }
+  .incoming-row .num{ font-family:'IBM Plex Mono', monospace; }
+  .incoming-row .tag{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--emerald); text-transform:uppercase; }
+
+  /* CHECK TABLE */
+  .check-header{ padding:36px 0 8px; }
+  .check-header h1 .n{ color:var(--emerald); }
+  .check-sub{ margin-bottom:28px; }
+  table{ width:100%; border-collapse:collapse; }
+  thead th{ text-align:left; font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-faint); padding:0 10px 10px; border-bottom:1px solid var(--ink); }
+  tbody tr{ border-bottom:1px solid var(--rule); }
+  tbody tr.flagged{ background:linear-gradient(to right, var(--amber-bg) 0, var(--amber-bg) 4px, transparent 4px); }
+  tbody td{ padding:13px 10px; font-size:13.5px; vertical-align:middle; }
+  td.idx{ font-family:'IBM Plex Mono', monospace; color:var(--ink-faint); font-size:12px; }
+  td.mono{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; }
+  td.mono.right{ text-align:right; }
+  td.name{ font-weight:500; }
+  .flag-note{ display:inline-flex; align-items:center; gap:5px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--amber); }
+  .flag-note .dot{ width:6px; height:6px; border-radius:50%; background:var(--amber); }
+  .inline-fix{ background:#fff; border:1px solid var(--amber); border-radius:3px; font-family:'IBM Plex Mono', monospace; font-size:12px; padding:3px 6px; width:118px; }
+  .ok-mark{ color:var(--emerald); font-size:13px; }
+  .check-footer{ margin-top:28px; padding-top:20px; border-top:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center; }
+  .footer-summary{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); }
+  .footer-summary b{ color:var(--ink); }
+
+  /* MESSAGE — STANDARD */
+  .msg-layout{ display:grid; grid-template-columns:1fr 1fr; gap:36px; padding-top:32px; }
+  @media (max-width:700px){ .msg-layout{ grid-template-columns:1fr; } }
+  .msg-col label{ display:block; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px; }
+  .template-select{ width:100%; padding:10px 12px; border:1px solid var(--rule); background:#fff; font-family:'Inter', sans-serif; font-size:13.5px; color:var(--ink); margin-bottom:20px; }
+  .msg-textarea{ width:100%; min-height:150px; border:1px solid var(--rule); background:#fff; padding:14px; font-family:'Inter', sans-serif; font-size:13.5px; line-height:1.6; color:var(--ink); resize:vertical; }
+  .field-tag{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10.5px; background:var(--paper-2); border:1px solid var(--rule); padding:2px 6px; border-radius:3px; color:var(--ink-soft); margin:8px 5px 0 0; }
+  .preview-envelope{ border:1px solid var(--rule); background:#fff; padding:18px; font-size:13px; line-height:1.6; position:relative; }
+  .preview-envelope::before{ content:"PREVIEW"; position:absolute; top:-9px; left:14px; background:var(--paper); padding:0 6px; font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--ink-faint); }
+  .preview-envelope b{ color:var(--ink); }
+  .channel-row{ margin-top:24px; padding-top:20px; border-top:1px dashed var(--rule); }
+  .channel-item{ display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+  .channel-item .left{ display:flex; align-items:center; gap:10px; }
+  .channel-item .ch-name{ font-size:13.5px; font-weight:500; }
+  .channel-item .ch-cost{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); }
+  .toggle{ width:38px; height:21px; border-radius:11px; background:var(--rule); position:relative; cursor:pointer; flex-shrink:0; }
+  .toggle.on{ background:var(--emerald); }
+  .toggle .knob{ width:17px; height:17px; background:#fff; border-radius:50%; position:absolute; top:2px; left:2px; transition:left .15s ease; }
+  .toggle.on .knob{ left:19px; }
+  .toggle.disabled{ background:var(--paper-2); cursor:not-allowed; }
+  .toggle.disabled .knob{ background:#D8D6CE; }
+  .ch-soon{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--ink-faint); text-transform:uppercase; }
+  .cost-total{ margin-top:18px; padding-top:14px; border-top:1px solid var(--rule); display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600; }
+  .send-time-row{ margin-top:36px; padding-top:20px; border-top:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center; }
+  .radio-group{ display:flex; gap:18px; }
+  .radio-opt{ display:flex; align-items:center; gap:7px; font-size:13px; cursor:pointer; }
+
+  /* MESSAGE — FAN-OUT / BROADCAST */
+  .fanout-pair{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; padding-top:28px; }
+  @media (max-width:700px){ .fanout-pair{ grid-template-columns:1fr; } }
+  .fanout-box{ border:1px solid var(--rule); background:#fff; padding:20px; }
+  .fanout-box.to-customer{ border-top:3px solid var(--emerald); }
+  .fanout-box.to-business{ border-top:3px solid var(--violet); }
+  .fanout-label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px; }
+  .fanout-label.customer{ color:var(--emerald); }
+  .fanout-label.business{ color:var(--violet); }
+  .fanout-textarea{ width:100%; min-height:110px; border:1px solid var(--rule); background:var(--paper); padding:12px; font-family:'Inter', sans-serif; font-size:13px; line-height:1.6; color:var(--ink); resize:vertical; margin-bottom:12px; }
+  .reschedule-note{ margin-top:4px; margin-bottom:16px; padding:14px 16px; background:var(--violet-bg); border-left:3px solid var(--violet); font-size:12.5px; line-height:1.6; }
+  .broadcast-layout{ padding-top:28px; display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+  @media (max-width:700px){ .broadcast-layout{ grid-template-columns:1fr; } }
+  .bc-source{ border:1px solid var(--rule); background:#fff; padding:16px; display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .bc-thumb{ width:64px; height:40px; background:var(--ink); border-radius:4px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; }
+  .bc-title{ font-size:13px; font-weight:600; }
+  .bc-meta{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
+  .bc-channels{ display:flex; flex-direction:column; gap:10px; }
+  .bc-channel-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid var(--rule); background:#fff; }
+  .bc-channel-item .left{ display:flex; align-items:center; gap:10px; font-size:13px; font-weight:500; }
+  .bc-audience{ margin-top:20px; padding:14px; background:var(--paper-2); font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); }
+  .bc-audience b{ color:var(--ink); }
+
+  /* SEND CONFIRM */
+  #send .page{ max-width:480px; min-height:calc(100vh - 49px); display:flex; flex-direction:column; justify-content:center; padding-bottom:60px; }
+  .confirm-box{ border:1px solid var(--ink); background:#fff; padding:32px 28px; }
+  .confirm-label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
+  .confirm-headline{ font-family:'Fraunces', serif; font-weight:600; font-size:26px; margin-bottom:22px; line-height:1.25; }
+  .confirm-line{ display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px dashed var(--rule); font-size:13.5px; }
+  .confirm-line span:first-child{ color:var(--ink-soft); }
+  .confirm-line span:last-child{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
+  .confirm-line.total{ border-bottom:none; border-top:1px solid var(--ink); margin-top:4px; padding-top:14px; font-size:15px; }
+  .btn-post{ width:100%; margin-top:26px; background:var(--ink); color:var(--paper); font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:14px; letter-spacing:0.03em; text-transform:uppercase; border:none; padding:16px; border-radius:2px; cursor:pointer; }
+  .confirm-warn{ margin-top:14px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); }
+
+  /* PROOF / RECEIPT */
+  .proof-page{ max-width:660px; margin:36px auto 0; background:#fff; box-shadow:0 12px 40px rgba(27,35,64,0.08); position:relative; }
+  .perforation{ height:14px; background:radial-gradient(circle at 10px 0, transparent 8px, #fff 8.5px) repeat-x; background-size:20px 14px; }
+  .perforation.bottom{ transform:rotate(180deg); }
+  .receipt-inner{ padding:8px 40px 36px; }
+  .receipt-head{ text-align:center; padding:20px 0 22px; border-bottom:1px dashed var(--rule); }
+  .receipt-head .brand{ justify-content:center; font-size:16px; margin-bottom:4px; }
+  .receipt-head .title{ font-family:'Fraunces', serif; font-weight:600; font-size:23px; margin-top:10px; }
+  .receipt-head .meta{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); margin-top:6px; }
+  .filter-row{ display:flex; justify-content:center; gap:6px; padding:18px 0 6px; flex-wrap:wrap; }
+  .filter-pill{ font-family:'IBM Plex Mono', monospace; font-size:11px; padding:5px 12px; border-radius:20px; border:1px solid var(--rule); color:var(--ink-soft); cursor:pointer; }
+  .filter-pill.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .rrow{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px dashed var(--rule); gap:12px; }
+  .rrow .who .name{ font-size:13.5px; font-weight:500; }
+  .rrow .who .via{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
+  .rrow .when{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); white-space:nowrap; }
+  .stamp{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:9.5px; letter-spacing:0.05em; text-transform:uppercase; padding:3px 8px; border-radius:2px; border:1.5px solid currentColor; }
+  .stamp.delivered{ color:var(--emerald); background:var(--emerald-bg); }
+  .stamp.failed{ color:var(--rust); background:var(--rust-bg); }
+  .stamp.rescheduled{ color:var(--violet); background:var(--violet-bg); }
+  .stamp.cancelled{ color:var(--rust); background:var(--rust-bg); }
+  .receipt-total{ margin-top:18px; padding-top:16px; border-top:1px solid var(--ink); display:flex; flex-direction:column; gap:6px; }
+  .total-line{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:12.5px; }
+  .total-line.grand{ font-size:14px; font-weight:600; padding-top:8px; border-top:1px dashed var(--rule); margin-top:4px; }
+  .receipt-actions{ margin-top:24px; display:flex; gap:10px; }
+  .receipt-actions .btn-outline{ flex:1; text-align:center; }
+  .pair-row{ padding:16px 0; border-bottom:1px dashed var(--rule); }
+  .pair-who{ font-size:13.5px; font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .pair-sends{ display:flex; flex-direction:column; gap:6px; }
+  .pair-send{ display:flex; justify-content:space-between; align-items:center; font-size:12px; }
+  .pair-send .psname{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); }
+  .bc-proof-hero{ text-align:center; padding:32px 0; border-bottom:1px dashed var(--rule); }
+  .bc-proof-hero .n{ font-family:'Fraunces', serif; font-weight:600; font-size:44px; color:var(--emerald); }
+  .bc-proof-hero .label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-top:4px; }
+  .bc-channel-result{ display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px dashed var(--rule); }
+  .bc-channel-result .ch-label{ font-size:13.5px; font-weight:500; }
+  .bc-channel-result .ch-stat{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); }
+
+  /* PHONE FRAME (customer-facing) */
+  .phone-frame{ max-width:380px; margin:40px auto 0; background:#fff; border:1px solid var(--rule); box-shadow:0 16px 44px rgba(27,35,64,0.12); border-radius:8px; overflow:hidden; }
+  .phone-header{ background:var(--ink); color:var(--paper); padding:20px 22px; text-align:center; }
+  .phone-header .brand{ color:var(--paper); justify-content:center; font-size:15px; }
+  .phone-header .brand .mark{ border-color:var(--paper); }
+  .phone-body{ padding:26px 22px 30px; }
+  .booking-card{ border:1.5px solid var(--rule); padding:20px; margin-bottom:20px; }
+  .booking-card .bc-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px; }
+  .booking-card .bc-service{ font-family:'Fraunces', serif; font-weight:600; font-size:19px; margin-bottom:10px; }
+  .booking-line{ display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed var(--rule); font-size:12.5px; }
+  .booking-line:last-child{ border-bottom:none; }
+  .booking-line span:first-child{ color:var(--ink-soft); }
+  .booking-line span:last-child{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
+  .action-btns{ display:flex; flex-direction:column; gap:10px; }
+  .btn-full{ width:100%; padding:14px; font-family:'Inter', sans-serif; font-weight:600; font-size:13.5px; border-radius:3px; cursor:pointer; text-align:center; }
+  .btn-reschedule{ background:var(--ink); color:var(--paper); border:none; }
+  .btn-cancel{ background:transparent; color:var(--rust); border:1.5px solid var(--rust-bg); }
+  .phone-footnote{ margin-top:18px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-faint); line-height:1.6; }
+  .slot-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0 20px; }
+  .slot{ border:1.5px solid var(--rule); padding:10px; text-align:center; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:12px; }
+  .slot.active{ border-color:var(--ink); background:var(--paper-2); font-weight:600; }
+  .slot.taken{ opacity:0.35; text-decoration:line-through; cursor:not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="tb-logo">OUTHBOX</div>
+    <div class="tb-crumb" id="crumb">Reminder Engine Prototype</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="tb-btn" id="backBtn" onclick="goBack()">← Back</button>
+    <button class="tb-btn" onclick="toggleSitemap(true)">☰ All Screens</button>
+  </div>
+</div>
+
+<div class="sitemap-overlay" id="sitemapOverlay" onclick="if(event.target===this)toggleSitemap(false)">
+  <div class="sitemap-panel">
+    <button class="sitemap-close" onclick="toggleSitemap(false)">✕</button>
+    <h3>All Screens</h3>
+    <div class="sub" style="font-size:12px;">Jump directly to any screen for review.</div>
+
+    <div class="sitemap-group">
+      <div class="sitemap-group-title">Home</div>
+      <a class="sitemap-link" onclick="goTo('home')">Sitemap / Landing</a>
+    </div>
+
+    <div class="sitemap-group">
+      <div class="sitemap-group-title">Schools,Churches & Reminder-Based Businesses (Westwood College)</div>
+      <a class="sitemap-link" onclick="goTo('signin')">1 · Sign In</a>
+      <a class="sitemap-link" onclick="goTo('picker', 'Westwood College')">2 · Trigger Picker</a>
+      <a class="sitemap-link" onclick="goTo('events', 'Westwood College')">2B · Live Event Menu</a>
+      <a class="sitemap-link" onclick="goTo('missedcall', 'Westwood College')">2C · Missed Call Setup</a>
+      <a class="sitemap-link" onclick="goTo('schedule', 'Westwood College')">2D · Scheduled Upload</a>
+      <a class="sitemap-link" onclick="goTo('import', 'Westwood College')">2E · Upload a List</a>
+      <a class="sitemap-link" onclick="goTo('check', 'Westwood College')">3 · Check</a>
+      <a class="sitemap-link" onclick="goTo('message', 'Westwood College')">4 · Message & Channels</a>
+      <a class="sitemap-link" onclick="goTo('send')">5 · Send</a>
+      <a class="sitemap-link" onclick="goTo('proof', 'Westwood College')">6 · Proof</a>
+    </div>
+
+    <div class="sitemap-group">
+      <div class="sitemap-group-title">Content Creators & Consultants (Yemi Laja Live)</div>
+      <a class="sitemap-link" onclick="goTo('picker', 'Yemi Laja Live', true)">2 · Trigger Picker (full)</a>
+      <a class="sitemap-link" onclick="goTo('payment')">2F · Payment Setup</a>
+      <a class="sitemap-link" onclick="goTo('delay')">2G · Delayed Follow-up</a>
+      <a class="sitemap-link" onclick="goTo('youtube')">2H · Content Published</a>
+      <a class="sitemap-link" onclick="goTo('fanout')">4B · Message — Fan-out</a>
+      <a class="sitemap-link" onclick="goTo('broadcast')">4C · Message — Broadcast</a>
+      <a class="sitemap-link" onclick="goTo('prooffanout')">6B · Proof — Fan-out</a>
+      <a class="sitemap-link" onclick="goTo('proofbroadcast')">6C · Proof — Broadcast</a>
+    </div>
+
+    <div class="sitemap-group">
+      <div class="sitemap-group-title">Service-Based Businesses (Studio Bloom Spa)</div>
+      <a class="sitemap-link" onclick="goTo('events3')">2B · Live Event Menu</a>
+      <a class="sitemap-link" onclick="goTo('bookingsetup')">2I · Booking Setup</a>
+      <a class="sitemap-link" onclick="goTo('fanout3')">4D · Message — Booking</a>
+      <a class="sitemap-link" onclick="goTo('customerpage')">— · Customer Self-Service</a>
+      <a class="sitemap-link" onclick="goTo('rescheduleslot')">— · Pick New Slot</a>
+      <a class="sitemap-link" onclick="goTo('proof3')">6D · Proof — Bookings</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="screen active" id="home">
+  <div class="home-hero">
+    <div class="eyebrow">Outhbox Reminder Engine</div>
+    <h1 class="display" style="font-size:38px;">One engine, three kinds of business</h1>
+    <p>Pick the business type closest to what you're evaluating. Each one is a real, clickable walkthrough — not slides. Use "☰ All Screens" any time to jump straight to a specific screen.</p>
+  </div>
+  <div class="home-grid">
+    <div class="home-card" onclick="goTo('signin')">
+      <div class="hc-num">Schools & Reminder-Based Businesses</div>
+      <div class="hc-title">Westwood College</div>
+      <div class="hc-desc">Institutions and businesses that send reminders about payments, fees, events, or offers — sign in, choose a trigger, upload a list, check, message, send, and get proof of delivery.</div>
+      <div class="hc-tags"><span class="hc-tag">Fee Reminders</span><span class="hc-tag">Open Days</span><span class="hc-tag">Admissions</span><span class="hc-tag">Discounts</span></div>
+      <div class="hc-enter">Start walkthrough →</div>
+    </div>
+    <div class="home-card" onclick="goTo('picker', 'Yemi Laja Live', true)">
+      <div class="hc-num">Content Creators & Consultants</div>
+      <div class="hc-title">Yemi Laja Live</div>
+      <div class="hc-desc">People running events or promoting content who need to remind their audience, collect payment, confirm it, and follow up automatically afterward.</div>
+      <div class="hc-tags"><span class="hc-tag">Event Reminders</span><span class="hc-tag">Payments</span><span class="hc-tag">Follow-ups</span><span class="hc-tag">Content Alerts</span></div>
+      <div class="hc-enter">Start walkthrough →</div>
+    </div>
+    <div class="home-card" onclick="goTo('events3')">
+      <div class="hc-num">Service-Based Businesses</div>
+      <div class="hc-title">Studio Bloom Spa</div>
+      <div class="hc-desc">Salons, spas, clinics, and other appointment-based businesses — bookings confirm both sides instantly, with a self-service page customers use to reschedule or cancel.</div>
+      <div class="hc-tags"><span class="hc-tag">Bookings</span><span class="hc-tag">Reminders</span><span class="hc-tag">Reschedule</span><span class="hc-tag">Self-service</span></div>
+      <div class="hc-enter">Start walkthrough →</div>
+    </div>
+    <div class="home-card" onclick="toggleSitemap(true)">
+      <div class="hc-num">Reference</div>
+      <div class="hc-title">Browse All 24 Screens</div>
+      <div class="hc-desc">Skip the walkthroughs and jump straight to any screen for review, grouped by scenario.</div>
+      <div class="hc-tags"><span class="hc-tag">Full Index</span></div>
+      <div class="hc-enter">Open menu →</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SIGN IN ============ -->
+<div class="screen" id="signin">
+  <div class="page">
+    <div class="signin-brand">Westwood College</div>
+    <div class="signin-tag">Reminder Engine · by Outhbox</div>
+    <div class="signin-form">
+      <label>Email or phone number</label>
+      <input type="text" placeholder="bursar@westwoodcollege.ng">
+      <button class="btn-primary" onclick="goTo('picker', 'Westwood College')">Send Sign-In Code</button>
+    </div>
+    <div class="signin-note">We'll send a one-time code.<br>No password to remember.</div>
+  </div>
+</div>
+
+<!-- ============ TRIGGER PICKER (shared, dynamic) ============ -->
+<div class="screen" id="picker">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-picker">Westwood College</span></div><div class="step">Step 2 of 6 — How should this start?</div></div>
+    <div class="header-block"><h1 class="display">How do you want to bring people in?</h1><div class="sub">Pick how this campaign gets its recipients. You can always add another one later.</div></div>
+    <div class="trigger-grid" id="pickerGrid">
+      <div class="trigger-card" onclick="goTo('import', currentBrand())"><div class="glyph">⤓</div><div class="t-title">Upload a List</div><div class="t-desc">Bring in an Excel or CSV file.</div><div class="t-tag ready">✓ Ready</div></div>
+      <div class="trigger-card" onclick="goTo('events', currentBrand())"><div class="glyph">⚡</div><div class="t-title">Connect a Live Event</div><div class="t-desc">A missed call, a payment, a booking.</div><div class="t-tag ready">✓ Ready</div></div>
+      <div class="trigger-card" onclick="goTo('schedule', currentBrand())"><div class="glyph">⏱</div><div class="t-title">Run on a Schedule</div><div class="t-desc">Same list, repeating automatically.</div><div class="t-tag ready">✓ Ready</div></div>
+      <div class="trigger-card" id="pickerDelay" onclick="goTo('delay')" style="display:none;"><div class="glyph">◷</div><div class="t-title">Delayed Follow-up</div><div class="t-desc">Wait after an event, then send.</div><div class="t-tag ready">✓ Ready</div></div>
+      <div class="trigger-card" id="pickerYoutube" onclick="goTo('youtube')" style="display:none;"><div class="glyph">▶</div><div class="t-title">Content Published</div><div class="t-desc">New video goes live, notify your list.</div><div class="t-tag ready">✓ Ready</div></div>
+      <div class="trigger-card dimmed"><div class="glyph">✎</div><div class="t-title">Form Submitted</div><div class="t-desc">Acknowledge a website enquiry instantly.</div><div class="t-tag soon">Coming soon</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LIVE EVENT MENU (shared, dynamic) ============ -->
+<div class="screen" id="events">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-events">Westwood College</span></div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">What should trigger it?</h1><div class="sub">Choose the event. We'll ask for one or two details to connect it.</div></div>
+    <div class="event-list">
+      <div class="event-row" onclick="goTo('missedcall', currentBrand())"><div class="event-left"><div class="event-glyph">☎</div><div><div class="event-name">Missed Call</div><div class="event-desc">Auto-message anyone who calls and doesn't get through</div></div></div><div class="event-status ready">Ready →</div></div>
+      <div class="event-row" onclick="goTo('payment')"><div class="event-left"><div class="event-glyph">₦</div><div><div class="event-name">Payment Received</div><div class="event-desc">Send an instant receipt the moment a payment clears</div></div></div><div class="event-status ready">Ready →</div></div>
+      <div class="event-row disabled"><div class="event-left"><div class="event-glyph">▤</div><div><div class="event-name">Order Shipped</div><div class="event-desc">Notify customers when their order status changes</div></div></div><div class="event-status soon">Coming soon</div></div>
+      <div class="event-row disabled"><div class="event-left"><div class="event-glyph">✎</div><div><div class="event-name">Form Submitted</div><div class="event-desc">Acknowledge a website enquiry the instant it arrives</div></div></div><div class="event-status soon">Coming soon</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MISSED CALL SETUP (shared, dynamic) ============ -->
+<div class="screen" id="missedcall">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-missedcall">Westwood College</span></div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Connect your phone line</h1><div class="sub">One-time setup. After this, every missed call becomes a recipient automatically.</div></div>
+    <div class="setup-box">
+      <label>Business phone number</label>
+      <input type="text" value="+234 812 000 4455">
+      <div class="setup-note">We'll detect any call to this number that isn't answered within 20 seconds, and treat the caller as a new recipient — ready for you to message on the next screen.</div>
+      <button class="btn-primary" onclick="goTo('check', currentBrand())">Connect Line & Continue →</button>
+    </div>
+    <div class="live-status">
+      <div><span class="live-dot"></span><span class="lstext">Listening for missed calls</span></div>
+      <div class="lsub">Recipients will appear here the moment a call goes unanswered.</div>
+      <div class="incoming-row" style="margin-top:16px;"><div><div style="font-weight:500;">Unknown Caller</div><div class="num">+234 705 221 9081 · 09:14 AM</div></div><div class="tag">New recipient</div></div>
+      <div class="incoming-row"><div><div style="font-weight:500;">Unknown Caller</div><div class="num">+234 802 447 1120 · 09:31 AM</div></div><div class="tag">New recipient</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCHEDULED UPLOAD (shared, dynamic) ============ -->
+<div class="screen" id="schedule">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-schedule">Westwood College</span></div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Set it and forget it</h1><div class="sub">Upload once, and we'll re-check this file automatically on the schedule you choose.</div></div>
+    <div class="dropzone" onclick="void(0)"><div class="icon">⤓</div><div class="title">appointments_master.xlsx</div><div class="desc">204 rows detected · linked to Google Sheets</div><button class="btn-outline">Replace File</button></div>
+    <div class="setup-box" style="margin-top:26px; max-width:none;">
+      <label>Repeat this campaign</label>
+      <div class="chip-row">
+        <div class="chip">Once only</div><div class="chip active">Daily</div><div class="chip">Weekly</div><div class="chip">Monthly</div>
+      </div>
+      <div class="footer-summary" style="font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--ink-soft);">Runs every day at <b style="color:var(--ink)">8:00 AM</b> — only messaging rows with an appointment the next day.</div>
+    </div>
+    <div class="footer-row"><span></span><button class="btn-primary" onclick="goTo('check', currentBrand())">Continue →</button></div>
+  </div>
+</div>
+
+<!-- ============ IMPORT (shared, dynamic) ============ -->
+<div class="screen" id="import">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-import">Westwood College</span></div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Bring in your list</h1><div class="sub">Upload the spreadsheet you already use. We'll read it as-is — no reformatting needed.</div></div>
+    <div class="dropzone" onclick="goTo('check', currentBrand())"><div class="icon">⤓</div><div class="title">Drop your Excel or CSV file here</div><div class="desc">or click to browse your computer — click anywhere here to simulate upload</div><button class="btn-outline">Choose File</button></div>
+    <div class="import-footnote">First time? <a href="#" onclick="return false;">Download a blank template</a> to see the expected columns.</div>
+    <div class="mapping-hint"><b>Last used:</b> Term Fees — Sept 2025.xlsx format recognized automatically. Columns will map to Name, Phone, Email, Amount, Due Date.</div>
+  </div>
+</div>
+
+<!-- ============ CHECK (shared, dynamic) ============ -->
+<div class="screen" id="check">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-check">Westwood College</span></div><div class="step">Step 3 of 6 — Check</div></div>
+    <div class="check-header"><h1 class="display"><span class="n">187</span> of 190 ready to send</h1><div class="sub check-sub">3 rows need a fix before you continue. Edit them right here — nothing leaves this page.</div></div>
+    <table>
+      <thead><tr><th>#</th><th>Recipient</th><th>Phone</th><th>Email</th><th style="text-align:right">Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td class="idx">01</td><td class="name">Mrs. Adaeze Okonkwo</td><td class="mono">+234 803 000 0000</td><td class="mono">adaeze.o@gmail.com</td><td class="mono right">₦145,000</td><td><span class="ok-mark">✓ ready</span></td></tr>
+        <tr><td class="idx">02</td><td class="name">Mr. Bassey Effiong</td><td class="mono">+234 802 111 2222</td><td class="mono">b.effiong@yahoo.com</td><td class="mono right">₦145,000</td><td><span class="ok-mark">✓ ready</span></td></tr>
+        <tr class="flagged"><td class="idx">03</td><td class="name">Mrs. Funmi Adebayo</td><td class="mono"><input class="inline-fix" value="0805 4XX XXXX"></td><td class="mono">funmi.a@gmail.com</td><td class="mono right">₦145,000</td><td><span class="flag-note"><span class="dot"></span>fix phone</span></td></tr>
+        <tr><td class="idx">04</td><td class="name">Mr. Chukwuemeka Nwosu</td><td class="mono">+234 701 555 8899</td><td class="mono">c.nwosu@outlook.com</td><td class="mono right">₦210,000</td><td><span class="ok-mark">✓ ready</span></td></tr>
+        <tr class="flagged"><td class="idx">05</td><td class="name">Mrs. Ijeoma Eze</td><td class="mono">+234 806 777 1234</td><td class="mono"><input class="inline-fix" value="add email"></td><td class="mono right">₦145,000</td><td><span class="flag-note"><span class="dot"></span>no email</span></td></tr>
+        <tr><td class="idx">06</td><td class="name">Mr. Tunde Bakare</td><td class="mono">+234 813 222 4455</td><td class="mono">t.bakare@gmail.com</td><td class="mono right">₦145,000</td><td><span class="ok-mark">✓ ready</span></td></tr>
+      </tbody>
+    </table>
+    <div class="check-footer"><div class="footer-summary"><b>187 ready</b> · 3 flagged · 190 total</div><button class="btn-primary" onclick="goTo('message', currentBrand())">Continue →</button></div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE — STANDARD (shared, dynamic) ============ -->
+<div class="screen" id="message">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span><span id="brand-message">Westwood College</span></div><div class="step">Step 4 of 6 — Message & Channels</div></div>
+    <div class="header-block"><h1 class="display">Choose what to send</h1><div class="sub">Pick a template, edit if you like, then choose how it reaches recipients.</div></div>
+    <div class="msg-layout">
+      <div class="msg-col">
+        <label>Template</label>
+        <select class="template-select"><option>Fee Reminder — Pre-Due</option><option>Fee Reminder — Overdue</option><option>Event Notice</option></select>
+        <label>Message</label>
+        <textarea class="msg-textarea">Dear {name}, this is a reminder that {amount} is due on {due_date}. Kindly make payment before the deadline. Thank you.</textarea>
+        <div><span class="field-tag">{name}</span><span class="field-tag">{amount}</span><span class="field-tag">{due_date}</span></div>
+      </div>
+      <div class="msg-col">
+        <label>Live Preview</label>
+        <div class="preview-envelope">Dear <b>Mrs. Adaeze Okonkwo</b>, this is a reminder that <b>₦145,000</b> is due on <b>15 Aug 2026</b>. Kindly make payment before the deadline. Thank you.</div>
+        <div class="channel-row">
+          <div class="channel-item"><div class="left"><div class="toggle on"><div class="knob"></div></div><div class="ch-name">SMS</div></div><div class="ch-cost">₦4.20 / recipient</div></div>
+          <div class="channel-item"><div class="left"><div class="toggle on"><div class="knob"></div></div><div class="ch-name">Email</div></div><div class="ch-cost">₦0.00 / recipient</div></div>
+          <div class="channel-item"><div class="left"><div class="toggle disabled"><div class="knob"></div></div><div class="ch-name" style="color:var(--ink-faint)">WhatsApp</div></div><div class="ch-soon">Coming soon</div></div>
+          <div class="cost-total"><span>Estimated cost — 187 recipients</span><span>₦785.40</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="send-time-row">
+      <div class="radio-group"><label class="radio-opt"><input type="radio" name="when" checked> Send now</label><label class="radio-opt"><input type="radio" name="when"> Schedule for later</label></div>
+      <button class="btn-primary" onclick="setProofTarget('proof', currentBrand()); goTo('send')">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE — FAN-OUT (Yemi) ============ -->
+<div class="screen" id="fanout">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Yemi Laja Live</div><div class="step">Step 4 of 6 — Message & Channels</div></div>
+    <div class="header-block"><h1 class="display">Two messages, one event</h1><div class="sub">A booking or payment tells two people something different — write each one.</div></div>
+    <div class="fanout-pair">
+      <div class="fanout-box to-customer"><div class="fanout-label customer">● To the Attendee</div><textarea class="fanout-textarea">Hi {name}, you're confirmed for An Evening With Yemi on Sept 20, 7PM. Your ticket reference is {ticket_id}. See you there!</textarea><div class="mini-toggle-row"><label><input type="checkbox" checked> SMS</label><label><input type="checkbox" checked> Email</label></div></div>
+      <div class="fanout-box to-business"><div class="fanout-label business">● To Yemi</div><textarea class="fanout-textarea">New booking: {name} just paid for An Evening With Yemi. Ticket {ticket_id}. Total sold: {running_total}.</textarea><div class="mini-toggle-row"><label><input type="checkbox" checked> SMS</label><label><input type="checkbox"> Email</label></div></div>
+    </div>
+    <div class="footer-row"><span></span><button class="btn-primary" onclick="setProofTarget('prooffanout'); goTo('send')">Continue →</button></div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE — BROADCAST (Yemi) ============ -->
+<div class="screen" id="broadcast">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Yemi Laja Live</div><div class="step">Step 4 of 6 — Message & Channels</div></div>
+    <div class="header-block"><h1 class="display">One message, everyone at once</h1><div class="sub">This goes to your whole list — no per-person details to fill in.</div></div>
+    <div class="broadcast-layout">
+      <div>
+        <div class="bc-source"><div class="bc-thumb">▶</div><div><div class="bc-title">New video detected</div><div class="bc-meta">"Studio Session: Behind The New Single" · 2 min ago</div></div></div>
+        <label style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); text-transform:uppercase; display:block; margin-bottom:10px;">Message</label>
+        <textarea class="fanout-textarea" style="min-height:130px;">Just dropped a new video — "Studio Session: Behind The New Single". Go watch it now: {video_link}</textarea>
+      </div>
+      <div>
+        <label style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint); text-transform:uppercase; display:block; margin-bottom:10px;">Send to</label>
+        <div class="bc-channels">
+          <div class="bc-channel-item"><div class="left">✉ Email List</div><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--emerald);">1,240 subscribers</span></div>
+          <div class="bc-channel-item"><div class="left">◔ Instagram Post</div><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint);">Coming soon</span></div>
+          <div class="bc-channel-item"><div class="left">✉ SMS Blast</div><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-faint);">Not selected</span></div>
+        </div>
+        <div class="bc-audience">Sending to <b>1,240 people</b> on your email list. Nobody is added or removed by this action.</div>
+      </div>
+    </div>
+    <div class="footer-row"><span></span><button class="btn-primary" onclick="setProofTarget('proofbroadcast'); goTo('send')">Continue →</button></div>
+  </div>
+</div>
+
+<!-- ============ PAYMENT SETUP (Yemi) ============ -->
+<div class="screen" id="payment">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Yemi Laja Live</div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Connect your payment link</h1><div class="sub">The moment someone pays for a ticket, we'll confirm it with them — and let you know too.</div></div>
+    <div class="setup-box">
+      <label>Payment provider</label>
+      <select><option>Paystack</option><option>Flutterwave</option><option>Eventbrite</option></select>
+      <label>Event / product this applies to</label>
+      <input type="text" value="An Evening With Yemi — Live, Sept 20">
+      <div class="setup-note">We'll listen for successful payments on this event only. Failed or pending payments won't trigger a message.</div>
+      <button class="btn-primary" onclick="goTo('fanout')">Connect Payment Link & Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DELAYED FOLLOW-UP SETUP (Yemi) ============ -->
+<div class="screen" id="delay">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Yemi Laja Live</div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Follow up, automatically</h1><div class="sub">Choose what starts the clock, how long to wait, then what gets sent.</div></div>
+    <div class="setup-box" style="max-width:600px;">
+      <label>Start the clock when</label>
+      <select><option>Payment is received (this event)</option><option>Someone attends (checked in)</option><option>A booking is confirmed</option></select>
+      <label>Then wait</label>
+      <div class="chip-row"><div class="chip">1 day</div><div class="chip active">3 days</div><div class="chip">1 week</div><div class="chip">Custom</div></div>
+      <div class="delay-visual"><div class="delay-node event">Payment Received</div><div class="delay-arrow-wrap"><div class="delay-wait">wait 3 days</div><div class="delay-arrow"></div></div><div class="delay-node action">Send Follow-up</div></div>
+      <div class="setup-note violet">This runs quietly in the background per person — everyone gets their own 3-day countdown starting from their own payment time.</div>
+      <button class="btn-primary" onclick="goTo('fanout')">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONTENT PUBLISHED SETUP (Yemi) ============ -->
+<div class="screen" id="youtube">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Yemi Laja Live</div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Connect your channel</h1><div class="sub">The moment a new video goes live, your list hears about it — no manual posting.</div></div>
+    <div class="setup-box" style="max-width:560px;">
+      <label>Source</label>
+      <div class="chip-row"><div class="chip active">YouTube</div><div class="chip">Instagram</div><div class="chip">TikTok</div></div>
+      <label>Channel</label>
+      <input type="text" value="youtube.com/@yemilajalive">
+      <div class="setup-note">We check for new uploads automatically. There's nothing to click when you publish — this runs on its own.</div>
+      <button class="btn-primary" onclick="goTo('broadcast')">Connect Channel & Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SEND (shared, dynamic target) ============ -->
+<div class="screen" id="send">
+  <div class="page">
+    <div class="confirm-box">
+      <div class="confirm-label">Step 5 of 6 — Send</div>
+      <div class="confirm-headline">Ready to post this reminder?</div>
+      <div class="confirm-line"><span>Recipients</span><span>187</span></div>
+      <div class="confirm-line"><span>Channels</span><span>SMS + Email</span></div>
+      <div class="confirm-line"><span>Timing</span><span>Now</span></div>
+      <div class="confirm-line total"><span>Estimated cost</span><span>₦785.40</span></div>
+      <button class="btn-post" onclick="goToProofTarget()">Post & Send</button>
+      <div class="confirm-warn">This can't be undone once sent. You'll see live delivery status next.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PROOF — STANDARD (shared, dynamic) ============ -->
+<div class="screen" id="proof">
+  <div class="proof-page">
+    <div class="perforation"></div>
+    <div class="receipt-inner">
+      <div class="receipt-head"><div class="brand" style="justify-content:center;"><span class="mark"></span><span id="brand-proof">Westwood College</span></div><div class="title">Delivery Receipt</div><div class="meta">CAMPAIGN #0192 · 10 JUL 2026, 11:42</div></div>
+      <div class="filter-row"><div class="filter-pill active">All (187)</div><div class="filter-pill">Delivered (182)</div><div class="filter-pill">Failed (5)</div></div>
+      <div class="rrow"><div class="who"><div class="name">Mrs. Adaeze Okonkwo</div><div class="via">SMS + EMAIL → +234 803 000 0000</div></div><div class="when">11:42:03</div><div class="stamp delivered">Delivered</div></div>
+      <div class="rrow"><div class="who"><div class="name">Mr. Bassey Effiong</div><div class="via">SMS + EMAIL → +234 802 111 2222</div></div><div class="when">11:42:04</div><div class="stamp delivered">Delivered</div></div>
+      <div class="rrow"><div class="who"><div class="name">Mrs. Funmi Adebayo</div><div class="via">SMS + EMAIL → +234 805 401 8832</div></div><div class="when">11:42:05</div><div class="stamp failed">Failed</div></div>
+      <div class="receipt-total"><div class="total-line"><span>Sent</span><span>187</span></div><div class="total-line"><span>Delivered</span><span>182</span></div><div class="total-line"><span>Failed</span><span>5</span></div><div class="total-line grand"><span>Total recipients</span><span>187</span></div></div>
+      <div class="receipt-actions"><button class="btn-outline" onclick="return false;">Retry Failed (5)</button><button class="btn-outline" onclick="return false;">Export / Print</button></div>
+    </div>
+    <div class="perforation bottom"></div>
+  </div>
+</div>
+
+<!-- ============ PROOF — FAN-OUT (Yemi) ============ -->
+<div class="screen" id="prooffanout">
+  <div class="proof-page">
+    <div class="perforation"></div>
+    <div class="receipt-inner">
+      <div class="receipt-head"><div class="brand" style="justify-content:center;"><span class="mark"></span>Yemi Laja Live</div><div class="title">Booking Confirmations</div><div class="meta">EVENT · AN EVENING WITH YEMI · 10 JUL 2026</div></div>
+      <div class="pair-row"><div class="pair-who">Folake Adenuga — Ticket #0192</div><div class="pair-sends"><div class="pair-send"><span class="psname">→ Attendee (SMS + Email)</span><span class="stamp delivered">Delivered</span></div><div class="pair-send"><span class="psname">→ Yemi (SMS)</span><span class="stamp delivered">Delivered</span></div></div></div>
+      <div class="pair-row"><div class="pair-who">David Okoro — Ticket #0193</div><div class="pair-sends"><div class="pair-send"><span class="psname">→ Attendee (SMS + Email)</span><span class="stamp delivered">Delivered</span></div><div class="pair-send"><span class="psname">→ Yemi (SMS)</span><span class="stamp delivered">Delivered</span></div></div></div>
+      <div class="receipt-total"><div class="total-line"><span>Bookings confirmed</span><span>62</span></div><div class="total-line"><span>Owner notifications sent</span><span>62</span></div><div class="total-line grand"><span>Total tickets sold</span><span>62</span></div></div>
+    </div>
+    <div class="perforation bottom"></div>
+  </div>
+</div>
+
+<!-- ============ PROOF — BROADCAST (Yemi) ============ -->
+<div class="screen" id="proofbroadcast">
+  <div class="proof-page">
+    <div class="perforation"></div>
+    <div class="receipt-inner">
+      <div class="receipt-head"><div class="brand" style="justify-content:center;"><span class="mark"></span>Yemi Laja Live</div><div class="title">Broadcast Sent</div><div class="meta">"STUDIO SESSION: BEHIND THE NEW SINGLE" · 10 JUL 2026</div></div>
+      <div class="bc-proof-hero"><div class="n">1,187</div><div class="label">of 1,240 subscribers reached</div></div>
+      <div class="bc-channel-result"><div class="ch-label">✉ Email</div><div class="ch-stat">1,187 delivered · 53 bounced</div></div>
+      <div class="bc-channel-result"><div class="ch-label">◔ Instagram</div><div class="ch-stat" style="color:var(--ink-faint);">Not connected yet</div></div>
+      <div class="receipt-total"><div class="total-line"><span>Sent</span><span>1,240</span></div><div class="total-line"><span>Delivered</span><span>1,187</span></div><div class="total-line grand"><span>Bounced</span><span>53</span></div></div>
+    </div>
+    <div class="perforation bottom"></div>
+  </div>
+</div>
+
+<!-- ============ LIVE EVENT MENU (Studio Bloom) ============ -->
+<div class="screen" id="events3">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Studio Bloom Spa</div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">What should trigger it?</h1><div class="sub">Choose the event. We'll ask for one or two details to connect it.</div></div>
+    <div class="event-list">
+      <div class="event-row new" onclick="goTo('bookingsetup')"><div class="event-left"><div class="event-glyph">📅</div><div><div class="event-name">New Booking</div><div class="event-desc">Confirm the customer, notify you, and open the door to reschedule</div></div></div><div class="event-status ready">Ready →</div></div>
+      <div class="event-row" onclick="goTo('missedcall', 'Studio Bloom Spa')"><div class="event-left"><div class="event-glyph">☎</div><div><div class="event-name">Missed Call</div><div class="event-desc">Auto-message anyone who calls and doesn't get through</div></div></div><div class="event-status ready">Ready →</div></div>
+      <div class="event-row" onclick="goTo('payment')"><div class="event-left"><div class="event-glyph">₦</div><div><div class="event-name">Payment Received</div><div class="event-desc">Send an instant receipt the moment a payment clears</div></div></div><div class="event-status ready">Ready →</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BOOKING SETUP (Studio Bloom) ============ -->
+<div class="screen" id="bookingsetup">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Studio Bloom Spa</div><a class="backlink" onclick="goBack()">← Back</a></div>
+    <div class="header-block"><h1 class="display">Connect your booking calendar</h1><div class="sub">Every new appointment becomes a confirmed booking automatically.</div></div>
+    <div class="setup-box">
+      <label>Booking source</label>
+      <select><option>Outhbox Booking Page</option><option>Google Calendar</option><option>Calendly</option></select>
+      <div class="setup-grid2"><div><label>Service</label><input type="text" value="60-min Deep Tissue"></div><div><label>Slot length</label><input type="text" value="60 minutes"></div></div>
+      <label>Allow customers to</label>
+      <div class="mini-toggle-row" style="margin-bottom:20px;"><label><input type="checkbox" checked> Reschedule</label><label><input type="checkbox" checked> Cancel</label></div>
+      <div class="setup-note violet">Customers get a link in their confirmation message. Tapping it opens a simple page — no login, no app — where they can change or cancel.</div>
+      <button class="btn-primary" onclick="goTo('fanout3')">Connect Calendar & Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MESSAGE — BOOKING FAN-OUT (Studio Bloom) ============ -->
+<div class="screen" id="fanout3">
+  <div class="page">
+    <div class="brand-row"><div class="brand"><span class="mark"></span>Studio Bloom Spa</div><div class="step">Step 4 of 6 — Message & Channels</div></div>
+    <div class="header-block"><h1 class="display">Two messages, one booking</h1><div class="sub">The customer gets confirmation with a manage-booking link. You get a heads-up.</div></div>
+    <div class="fanout-pair">
+      <div class="fanout-box to-customer"><div class="fanout-label customer">● To the Customer</div><textarea class="fanout-textarea">Hi {name}, you're booked for {service} on {date} at {time}. Need to change it? Tap here: {manage_link}</textarea><div class="reschedule-note">Includes the manage-booking link automatically — <a href="#" onclick="goTo('customerpage'); return false;" style="text-decoration:underline; cursor:pointer;">preview what that page looks like →</a></div><div class="mini-toggle-row"><label><input type="checkbox" checked> SMS</label><label><input type="checkbox" checked> Email</label></div></div>
+      <div class="fanout-box to-business"><div class="fanout-label business">● To Studio Bloom</div><textarea class="fanout-textarea">New booking: {name} for {service} on {date} at {time}.</textarea><div class="mini-toggle-row"><label><input type="checkbox" checked> SMS</label><label><input type="checkbox"> Email</label></div></div>
+    </div>
+    <div class="footer-row"><span></span><button class="btn-primary" onclick="setProofTarget('proof3'); goTo('send')">Continue →</button></div>
+  </div>
+</div>
+
+<!-- ============ CUSTOMER SELF-SERVICE (Studio Bloom) ============ -->
+<div class="screen" id="customerpage">
+  <div class="page">
+    <div class="header-block" style="text-align:center; padding-top:20px;">
+      <div class="step" style="display:block; margin-bottom:6px;">Customer-Facing · No login required</div>
+      <div class="sub" style="max-width:400px; margin:0 auto;">This is what the customer sees when they tap the link in their confirmation message.</div>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-header"><div class="brand"><span class="mark"></span>Studio Bloom Spa</div></div>
+      <div class="phone-body">
+        <div class="booking-card"><div class="bc-label">Your Booking</div><div class="bc-service">60-min Deep Tissue</div><div class="booking-line"><span>Date</span><span>Sat, 12 Jul 2026</span></div><div class="booking-line"><span>Time</span><span>2:00 PM</span></div><div class="booking-line"><span>With</span><span>Studio Bloom</span></div></div>
+        <div class="action-btns"><button class="btn-full btn-reschedule" onclick="goTo('rescheduleslot')">Reschedule</button><button class="btn-full btn-cancel" onclick="return false;">Cancel Booking</button></div>
+        <div class="phone-footnote">Changes are confirmed instantly. Studio Bloom is notified the moment you make a change.</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:24px;"><a class="backlink" onclick="goBack()">← Back to admin view</a></div>
+  </div>
+</div>
+
+<!-- ============ RESCHEDULE SLOT PICKER (Studio Bloom) ============ -->
+<div class="screen" id="rescheduleslot">
+  <div class="page">
+    <div class="header-block" style="text-align:center; padding-top:20px;"><div class="step" style="display:block; margin-bottom:6px;">Customer-Facing · After tapping "Reschedule"</div></div>
+    <div class="phone-frame">
+      <div class="phone-header"><div class="brand"><span class="mark"></span>Studio Bloom Spa</div></div>
+      <div class="phone-body">
+        <div class="bc-label" style="margin-bottom:10px;">Pick a new time</div>
+        <div class="slot-grid">
+          <div class="slot taken">Sat 12 · 2:00 PM</div><div class="slot">Sat 12 · 4:00 PM</div>
+          <div class="slot active">Sun 13 · 11:00 AM</div><div class="slot">Sun 13 · 2:00 PM</div>
+          <div class="slot">Mon 14 · 10:00 AM</div><div class="slot">Mon 14 · 3:00 PM</div>
+        </div>
+        <div class="action-btns"><button class="btn-full btn-reschedule" onclick="goTo('proof3')">Confirm New Time</button></div>
+        <div class="phone-footnote">Your old slot opens up for someone else the moment you confirm.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PROOF — BOOKINGS (Studio Bloom) ============ -->
+<div class="screen" id="proof3">
+  <div class="proof-page">
+    <div class="perforation"></div>
+    <div class="receipt-inner">
+      <div class="receipt-head"><div class="brand" style="justify-content:center;"><span class="mark"></span>Studio Bloom Spa</div><div class="title">Booking Activity</div><div class="meta">WEEK OF 6–12 JUL 2026</div></div>
+      <div class="pair-row"><div class="pair-who"><span>Amara Bello — Deep Tissue, Sat 2:00 PM</span><span class="stamp delivered">Confirmed</span></div><div class="pair-sends"><div class="pair-send"><span class="psname">→ Customer (SMS + Email)</span><span class="stamp delivered">Delivered</span></div><div class="pair-send"><span class="psname">→ Studio Bloom (SMS)</span><span class="stamp delivered">Delivered</span></div></div></div>
+      <div class="pair-row"><div class="pair-who"><span>Ngozi Chukwu — moved to Sun 11:00 AM</span><span class="stamp rescheduled">Rescheduled</span></div><div class="pair-sends"><div class="pair-send"><span class="psname">→ Customer (confirmation of change)</span><span class="stamp delivered">Delivered</span></div><div class="pair-send"><span class="psname">→ Studio Bloom (heads-up)</span><span class="stamp delivered">Delivered</span></div></div></div>
+      <div class="pair-row"><div class="pair-who"><span>Emeka Obi — Hot Stone, Mon 10:00 AM</span><span class="stamp cancelled">Cancelled</span></div><div class="pair-sends"><div class="pair-send"><span class="psname">→ Customer (cancellation notice)</span><span class="stamp delivered">Delivered</span></div><div class="pair-send"><span class="psname">→ Studio Bloom (slot now open)</span><span class="stamp delivered">Delivered</span></div></div></div>
+      <div class="receipt-total"><div class="total-line"><span>New bookings</span><span>14</span></div><div class="total-line"><span>Rescheduled</span><span>3</span></div><div class="total-line"><span>Cancelled</span><span>1</span></div><div class="total-line grand"><span>Confirmed on the books</span><span>13</span></div></div>
+    </div>
+    <div class="perforation bottom"></div>
+  </div>
+</div>
+
+<script>
+let history_stack = ['home'];
+let proofTarget = 'proof';
+let proofBrand = 'Westwood College';
+
+function currentBrand(){
+  const el = document.getElementById('crumb');
+  return el.dataset.brand || 'Westwood College';
+}
+
+function setProofTarget(id, brand){
+  proofTarget = id;
+  if(brand) proofBrand = brand;
+}
+
+function goToProofTarget(){
+  goTo(proofTarget, proofBrand);
+}
+
+function goTo(id, brand, showFull){
+  const target = document.getElementById(id);
+  if(!target) return;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  target.classList.add('active');
+  history_stack.push(id);
+  document.getElementById('crumb').textContent = (brand ? brand + ' · ' : '') + id;
+  document.getElementById('crumb').dataset.brand = brand || '';
+  window.scrollTo(0,0);
+
+  // update dynamic brand labels on shared screens
+  const brandMap = {
+    'brand-picker': id === 'picker' ? brand : null,
+    'brand-events': id === 'events' ? brand : null,
+    'brand-missedcall': id === 'missedcall' ? brand : null,
+    'brand-schedule': id === 'schedule' ? brand : null,
+    'brand-import': id === 'import' ? brand : null,
+    'brand-check': id === 'check' ? brand : null,
+    'brand-message': id === 'message' ? brand : null,
+    'brand-proof': id === 'proof' ? brand : null,
+  };
+  Object.keys(brandMap).forEach(elId => {
+    if(brandMap[elId]){
+      const el = document.getElementById(elId);
+      if(el) el.textContent = brandMap[elId];
+    }
+  });
+
+  // show/hide extra picker cards for full (Yemi) picker view
+  if(id === 'picker'){
+    document.getElementById('pickerDelay').style.display = showFull ? 'flex' : 'none';
+    document.getElementById('pickerYoutube').style.display = showFull ? 'flex' : 'none';
+  }
+
+  toggleSitemap(false);
+}
+
+function goBack(){
+  if(history_stack.length > 1){
+    history_stack.pop();
+    const prev = history_stack[history_stack.length - 1];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(prev).classList.add('active');
+    window.scrollTo(0,0);
+  }
+}
+
+function toggleSitemap(open){
+  document.getElementById('sitemapOverlay').classList.toggle('open', open);
+}
+
+// interactive bits
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('toggle') && !e.target.classList.contains('disabled')){
+    e.target.classList.toggle('on');
+  }
+  if(e.target.classList.contains('chip')){
+    e.target.parentElement.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+  if(e.target.classList.contains('slot') && !e.target.classList.contains('taken')){
+    e.target.parentElement.querySelectorAll('.slot').forEach(x => { if(!x.classList.contains('taken')) x.classList.remove('active'); });
+    e.target.classList.add('active');
+  }
+  if(e.target.classList.contains('filter-pill')){
+    e.target.parentElement.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+    e.target.classList.add('active');
+  }
+});
+</script>
+
+</body>
+</html>
