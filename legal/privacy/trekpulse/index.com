@@ -1,0 +1,345 @@
+---
+layout: page
+title: "TrekPulse Privacy Policy"
+description: "TrekPulse privacy policy — how health, fitness, account, and activity data is collected, used, stored, and protected."
+---
+
+<section class="section bottom-padding-large">
+    <div class="main-container start-hidden" style="opacity: 1;">
+        <div ix-onload-fade-in-attributed="" class="utility-article-wrap">
+
+            <div class="content">
+                <h1 ix-fade-in-1="" style="opacity: 1;">TrekPulse Privacy Policy</h1>
+
+                <div ix-fade-in-2="" class="text---lead" style="opacity: 1;">
+                    Your data, explained. TrekPulse reads health and fitness information with your permission. Step activity syncs to your account for history and leaderboards. Other health readings are displayed on your device.
+                </div>
+
+                <div ix-fade-in-2="" class="career-meta-item" style="opacity: 1;">
+                    <div class="badge-text muted-text">Application</div>
+                    <div>TrekPulse — Health & Fitness</div>
+                </div>
+
+                <div ix-fade-in-2="" class="career-meta-item" style="opacity: 1;">
+                    <div class="badge-text muted-text">Developer</div>
+                    <div>folaranmi</div>
+                </div>
+            </div>
+
+            <div ix-fade-in-3="" class="article w-richtext" style="opacity: 1;">
+
+                <p>
+                    TrekPulse is a health and fitness mobile application that helps users track activity, monitor fitness progress, participate in challenges, and engage with community features.
+                </p>
+
+                <p>
+                    You can revoke health access in your device settings,
+                    <a href="https://trekpulse-asbrduekf9f2engz.westeurope-01.azurewebsites.net/delete-account">delete your account</a>,
+                    or <a href="mailto:gbengaobafemi1@gmail.com">contact the developer</a> about your data.
+                </p>
+
+                <p><strong>1. App and developer</strong></p>
+
+                <p>
+                    This Privacy Policy applies to TrekPulse, the health and fitness mobile application developed by folaranmi (the developer name on Google Play).
+                </p>
+
+                <p>
+                    In the TrekPulse sections of this policy, "we" and "our" refer to folaranmi. For privacy matters, folaranmi is responsible for TrekPulse's processing of personal data and can be contacted at
+                    <a href="mailto:gbengaobafemi1@gmail.com">gbengaobafemi1@gmail.com</a>.
+                </p>
+
+                <p>
+                    This Privacy Policy is published on the OUTHBOX website. Outhbox Limited provides the website hosting and presentation of this policy. Publication on this website does not change the identity of the application developer responsible for the processing described here.
+                </p>
+
+                <p><strong>2. Account and community information</strong></p>
+
+                <p>
+                    We collect information you provide to create and use your account, including your name, email address, username, and chosen profile image.
+                </p>
+
+                <p>
+                    We process your participation in groups, challenges, rewards, and community features, including content you choose to submit, to provide those features.
+                </p>
+
+                <p>
+                    We also process authentication credentials, sessions, and verification codes to secure your account.
+                </p>
+
+                <p>
+                    If you enable notifications, we store a push-notification token to deliver app notifications. You can turn notifications off in your device settings.
+                </p>
+
+                <p>
+                    Support correspondence is used to respond to your request.
+                </p>
+
+                <p><strong>3. Health and fitness data we access and collect</strong></p>
+
+                <p>
+                    <strong>TrekPulse accesses and collects health and fitness data with your permission.</strong>
+                </p>
+
+                <p>
+                    Sources include Android Health Connect, Apple Health on iOS, and supported phone motion or step sensors. Available records depend on your device, connected apps, and the permissions you grant.
+                </p>
+
+                <ul role="list">
+                    <li>
+                        <strong>Steps and activity history:</strong>
+                        We read step counts and their dates to track daily movement and progress. We calculate estimated distance and calories from steps; these are estimates, not medical measurements.
+                    </li>
+
+                    <li>
+                        <strong>Other health metrics:</strong>
+                        The Health screen requests access to heart rate, body weight, sleep, and blood oxygen records. Where supported and authorized, it reads heart rate and weight, sleep sessions on Android, and blood oxygen on iOS to display your health snapshot. Not all metrics are available on both platforms. These additional readings are displayed locally and are not synced to the step-history server.
+                    </li>
+
+                    <li>
+                        <strong>Background access:</strong>
+                        Where supported and permitted, TrekPulse can read steps while the app is not open to keep activity totals and progress up to date.
+                    </li>
+                </ul>
+
+                <h5>Health data sources, purposes, and storage</h5>
+
+                <p>
+                    <strong>Steps and activity date:</strong>
+                    Obtained from Health Connect, Apple Health, or motion sensors for tracking, history, and rankings. Stored on your device and on the TrekPulse server, linked to your account.
+                </p>
+
+                <p>
+                    <strong>Distance and calorie estimates:</strong>
+                    Calculated from step counts for activity summaries. Stored on your device and on the TrekPulse server.
+                </p>
+
+                <p>
+                    <strong>Heart rate, weight, sleep, and oxygen readings:</strong>
+                    Obtained from supported health sources for display on your Health screen. Read and displayed on your device and not uploaded to the step-history server.
+                </p>
+
+                <p><strong>4. How we use and store health data</strong></p>
+
+                <p>
+                    We use steps to show activity history, goals, streaks, estimated distance and calories, and to calculate challenge progress, achievements, rewards, and leaderboard rankings.
+                </p>
+
+                <p>
+                    We send daily step totals, the associated date, estimated calories, and estimated distance to our server and store them with your account.
+                </p>
+
+                <p>
+                    The app also stores activity and synchronization information on your device.
+                </p>
+
+                <p>
+                    Additional heart-rate, weight, sleep, and blood-oxygen readings are used by the Health screen on your device. That screen does not upload these readings to the TrekPulse step-history server.
+                </p>
+
+                <p>
+                    TrekPulse is a general fitness and wellbeing app, not a medical device. It does not diagnose, treat, cure, or prevent any medical condition. Consult a qualified healthcare professional for medical advice.
+                </p>
+
+                <p><strong>5. Sharing and advertising</strong></p>
+
+                <p>
+                    Your profile identity, activity totals, rankings, and challenge or group progress can be visible to other users through leaderboards and community features.
+                </p>
+
+                <p>
+                    Content you post in a group is visible to its audience.
+                </p>
+
+                <p>
+                    Hosting, database, and notification providers process information needed to operate TrekPulse.
+                </p>
+
+                <p>
+                    Our app API is hosted on Microsoft Azure. Service providers may process information outside your country; the app API is configured in Azure's West Europe region.
+                </p>
+
+                <p>
+                    We may disclose information where required by law.
+                </p>
+
+                <p>
+                    Additional health readings such as heart rate, weight, sleep, and oxygen are not included in leaderboard data.
+                </p>
+
+                <h5>Advertising and Google AdMob</h5>
+
+                <p>
+                    TrekPulse includes Google AdMob advertising.
+                </p>
+
+                <p>
+                    Advertising services may process device identifiers, IP addresses, ad interactions, and diagnostic information to deliver and measure advertisements and prevent fraud, subject to applicable consent choices.
+                </p>
+
+                <p>
+                    You can revisit available choices under <strong>Settings and privacy → Ad privacy choices</strong>.
+                </p>
+
+                <p>
+                    TrekPulse does not sell health data or use it for targeted advertising.
+                </p>
+
+                <p>
+                    Health Connect data is used for the fitness features described here, not for credit, insurance eligibility, or data brokerage.
+                </p>
+
+                <p>
+                    Health records and activity values are not included in TrekPulse's advertising requests.
+                </p>
+
+                <p>
+                    See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a> for Google's data practices.
+                </p>
+
+                <p><strong>6. Permissions and your choices</strong></p>
+
+                <p>
+                    You can refuse health access or revoke it in Android Health Connect, Apple Health, or your device's app permissions.
+                </p>
+
+                <p>
+                    Disabling motion or health permissions limits the corresponding tracking features.
+                </p>
+
+                <p>
+                    Revoking access stops future access under that permission. It does not automatically delete activity already saved to your TrekPulse account or records held by Apple Health, Health Connect, or other source apps.
+                </p>
+
+                <p id="retention"><strong>7. Retention and deletion</strong></p>
+
+                <p>
+                    Account and step activity history are retained while your account remains active so that history and rankings continue to work.
+                </p>
+
+                <p>
+                    When you complete account deletion, we immediately delete your account and associated data from the active application database, including step logs, sessions, notification tokens, verification codes, account-linked audit records, and messages you sent.
+                </p>
+
+                <p>
+                    We remove group memberships. A group with remaining members can continue under another owner.
+                </p>
+
+                <p>
+                    You can request account and associated data deletion using the
+                    <a href="https://trekpulse-asbrduekf9f2engz.westeurope-01.azurewebsites.net/delete-account" target="_blank" rel="noopener noreferrer">TrekPulse account deletion page</a>.
+                </p>
+
+                <p>
+                    You can also email
+                    <a href="mailto:gbengaobafemi1@gmail.com">gbengaobafemi1@gmail.com</a>
+                    for help with deletion or to request deletion of particular information.
+                </p>
+
+                <p>
+                    We may need to verify account ownership to protect your data.
+                </p>
+
+                <p>
+                    Removing the app alone does not delete server records. Data held by your health-data source must be managed separately through that source.
+                </p>
+
+                <p><strong>8. Security</strong></p>
+
+                <p>
+                    The app uses HTTPS for communication with the TrekPulse API, and account-specific API operations require authentication.
+                </p>
+
+                <p>
+                    No storage or transmission system can guarantee complete security.
+                </p>
+
+                <p><strong>9. Your rights and contact</strong></p>
+
+                <p>
+                    Depending on where you live, you may have rights to access, obtain a copy of, correct or delete your personal information, restrict or object to processing, and withdraw consent.
+                </p>
+
+                <p>
+                    Withdrawing consent does not change processing already carried out.
+                </p>
+
+                <p>
+                    You may also complain to your local data-protection authority.
+                </p>
+
+                <p>
+                    For privacy questions, access, correction, or deletion requests, contact <strong>folaranmi</strong> at
+                    <a href="mailto:gbengaobafemi1@gmail.com">gbengaobafemi1@gmail.com</a>.
+                </p>
+
+                <p>
+                    Please identify TrekPulse and describe your request without sending passwords or unnecessary health records.
+                </p>
+
+                <p><strong>10. Age eligibility</strong></p>
+
+                <p>
+                    TrekPulse is intended for users aged 13 and older.
+                </p>
+
+                <p>
+                    Children under 13 must not create an account.
+                </p>
+
+                <p>
+                    If you are under the age at which you can independently consent to data processing in your country, a parent or guardian must provide any legally required consent.
+                </p>
+
+                <p>
+                    If you believe a child under 13 has provided personal information, contact us so we can investigate and remove it.
+                </p>
+
+                <p><strong>11. Website hosting and OUTHBOX</strong></p>
+
+                <p>
+                    This Privacy Policy is published on the OUTHBOX website as a dedicated privacy information page for TrekPulse.
+                </p>
+
+                <p>
+                    Outhbox Limited's own website privacy practices are described separately in the
+                    <a href="/legal/privacy/">OUTHBOX Privacy Policy</a>.
+                </p>
+
+                <p>
+                    Visiting this privacy policy page does not give the website access to your health records.
+                </p>
+
+                <p>
+                    For questions about the OUTHBOX website, contact
+                    <a href="mailto:hello@outhbox.com">hello@outhbox.com</a>.
+                    For TrekPulse account, health, or activity data requests, contact the TrekPulse developer using the contact information above.
+                </p>
+
+                <p><strong>12. Changes to this policy</strong></p>
+
+                <p>
+                    Updates will be published on this page with a revised date.
+                </p>
+
+                <p>
+                    Changes to health-data access may also require new permissions in the app.
+                </p>
+
+                <h5>Privacy contact</h5>
+
+                <p>
+                    <strong>Application:</strong> TrekPulse<br>
+                    <strong>Developer:</strong> folaranmi<br>
+                    <strong>Email:</strong>
+                    <a href="mailto:gbengaobafemi1@gmail.com">gbengaobafemi1@gmail.com</a>
+                </p>
+
+                <p>
+                    <a href="/legal/privacy/">View OUTHBOX Privacy Policy</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</section>
